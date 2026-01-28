@@ -1,10 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import emailjs from "@emailjs/browser";
 import { personalInfo } from "@/lib/data";
 import SectionHeading from "@/components/ui/SectionHeading";
 import Button from "@/components/ui/Button";
+
+// EmailJS Configuration
+const EMAILJS_SERVICE_ID = "service_9m5t98d";
+const EMAILJS_TEMPLATE_ID = "template_w06fyeb";
+const EMAILJS_PUBLIC_KEY = "R8G2-VEPuvB9KAnX9";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -19,6 +25,8 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
+type ToastType = "success" | "error" | null;
+
 export default function Contact() {
   const [formData, setFormData] = useState({
     name: "",
@@ -26,18 +34,41 @@ export default function Contact() {
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toast, setToast] = useState<{ type: ToastType; message: string }>({
+    type: null,
+    message: "",
+  });
+
+  const showToast = (type: ToastType, message: string) => {
+    setToast({ type, message });
+    setTimeout(() => setToast({ type: null, message: "" }), 5000);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission - replace with actual implementation
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          from_name: formData.name,
+          from_email: formData.email,
+          message: formData.message,
+          to_name: personalInfo.name,
+        },
+        EMAILJS_PUBLIC_KEY
+      );
 
-    // Reset form
-    setFormData({ name: "", email: "", message: "" });
-    setIsSubmitting(false);
-    alert("Message sent! (This is a placeholder - implement your backend)");
+      showToast("success", "Message sent successfully! I'll get back to you soon.");
+      setFormData({ name: "", email: "", message: "" });
+    } catch (error) {
+      console.error("EmailJS Error:", error);
+      showToast("error", "Failed to send message. Please try again or email me directly.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -45,6 +76,45 @@ export default function Contact() {
       id="contact"
       className="py-20 lg:py-32 bg-white dark:bg-slate-900"
     >
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast.type && (
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            className="fixed top-24 left-1/2 -translate-x-1/2 z-50"
+          >
+            <div
+              className={`px-6 py-4 rounded-xl shadow-lg flex items-center gap-3 ${
+                toast.type === "success"
+                  ? "bg-green-500 text-white"
+                  : "bg-red-500 text-white"
+              }`}
+            >
+              {toast.type === "success" ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              )}
+              <span className="font-medium">{toast.message}</span>
+              <button
+                onClick={() => setToast({ type: null, message: "" })}
+                className="ml-2 hover:opacity-80"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
           title="Get In Touch"
@@ -186,9 +256,11 @@ export default function Contact() {
               </div>
 
               <Button
+                type="submit"
                 variant="primary"
                 size="lg"
                 className="w-full"
+                disabled={isSubmitting}
               >
                 {isSubmitting ? (
                   <>

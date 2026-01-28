@@ -3,11 +3,11 @@ export const personalInfo = {
   name: "Ravi Rawat",
   role: "Mendix Developer | Backend & AI Enthusiast",
   tagline: "Building scalable enterprise apps & AI-powered solutions",
-  experience: "1.5+",
+  experience: "2+",
   email: "knpravirawat111@gmail.com",
   phone: "+91-6393620970",
   location: "India",
-  resumeUrl: "/resume.pdf",
+  resumeUrl: "https://drive.google.com/file/d/1yQD8_P3ZK_FvVs3-3p9paLRq9031OnSc/view?usp=sharing",
 };
 
 export const socialLinks = [
@@ -44,7 +44,7 @@ export const socialLinks = [
 ];
 
 export const aboutContent = {
-  professional: `I am a Mendix Developer with 1.5+ years of experience in building and deploying low-code enterprise applications. I have strong hands-on experience with microflows, nanoflows, domain models, UI pages, and external API integrations.
+  professional: `I am a Mendix Developer with 2+ years of experience in building and deploying low-code enterprise applications. I have strong hands-on experience with microflows, nanoflows, domain models, UI pages, and external API integrations.
 
 Alongside low-code development, I am actively expanding into backend and AI-driven application development using Python and FastAPI. I aim to build scalable systems, automation solutions, and AI-powered APIs while maintaining clean architecture and strong UX.`,
 
